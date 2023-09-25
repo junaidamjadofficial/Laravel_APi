@@ -8,14 +8,47 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Passport\HasApiTokens;
 
 class UserController extends Controller
 {
+    use HasApiTokens;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+    public function register(Request $request){
+        
+        $validatedData=$request->validate([
+            'name' => 'required',
+            'email' => ['required','email'],
+            'password' => ['min:8','confirmed'],
+        ]);
+        $user=User::Create($validatedData); 
+        $token=$user->createToken('Auth_token')->accessToken;
+        return response()->json([
+            'token' => $token,
+            'user' => $user,
+            'message' => 'User has been created Sucessfully',
+            'status' =>'1',
+        ]);
+    }
+    public function Login(Request $request){
+        $validatedData=$request->validate([
+            'email' => ['required','email'],
+            'password' => ['required'],
+        ]);
+        $user=User::where(['email' => $validatedData['email'],'password'=> $validatedData['password']])->first();
+        // dd($user);
+        $token=$user->createToken('User_token')->accessToken;
+        return response()->json([
+            'token' => $token,
+            'user' => $user,
+            'message' => 'User has been Logged In Sucessfully',
+            'status' =>'1',
+        ]);
+    }   
     public function index($flag)
     {
         $query=User::select('name','email','status');
@@ -116,6 +149,7 @@ class UserController extends Controller
             $response= [
                 'message' => 'User has not been found',
                 'status' => 0,
+                'user' => null,
             ];
         }
         else{

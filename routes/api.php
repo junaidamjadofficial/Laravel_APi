@@ -21,12 +21,18 @@ use App\Http\Controllers\api\UserController;
 // Route::get('/test',function(){
 //     p("working");
 // });
-Route::post('/user/store','App\Http\Controllers\api\UserController@store');
+Route::post('/login',[UserController::class,'Login']);
+// Route::post('/user/store','App\Http\Controllers\api\UserController@store');
 Route::get('/user/get/{flag}',[UserController::class,'index']);
-Route::get('/user/{id}',[UserController::class,'show']);
 Route::delete('/user/delete/{id}',[UserController::class,'destroy']);
 Route::put('/user/update/{id}',[UserController::class,'update']);
 Route::patch('/user/change-password/{id}',[UserController::class,'changePassword']);
+Route::post('/register',[UserController::class,'register']);
+
+Route::middleware('auth:api')->group(function(){
+    Route::get('/user/{id}',[UserController::class,'show']);
+});
+
 
 
 
